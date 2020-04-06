@@ -33,6 +33,10 @@ int flagE = 1;
 int flagF = 1;
 int flagG = 1;
 int flagH = 1;
+int flagI = 1;
+int flagJ = 1;
+int flagK = 1;
+int flagL = 1;
 
 //Car dummy variables
 short eStop = 0;
@@ -40,9 +44,13 @@ short bmsTemp = 0;
 short carSpeed = 0;
 short bmsVoltage = 0;
 short bmsCurrent = 0;
-short motorVoltage = 30;
-short motorCurrent = 0;
 short tsPower = 0;
+short motorVoltageLeft = 30;
+short motorVoltageRight = 30;
+short motorCurrentLeft = 0;
+short motorCurrentRight = 0;
+short steering = 0;
+short throttle = 0;
 
 void loop()
 { 
@@ -130,46 +138,119 @@ void loop()
     }
   }
 
-  //Motor voltage dummy
+  //TS power dummy
   if (flagF > 0)
   {
-    motorVoltage++;
-    if (motorVoltage >= 140)
-    {
-      flagF = -1;
-    }
-  }
-  else
-  {
-    motorVoltage--;
-    if (motorVoltage <= 30)
-    {
-      flagF = 1;
-    }
+    tsPower = ((motorVoltageLeft * motorCurrentLeft)
+    +(motorVoltageRight * motorCurrentRight))/(1000);
   }
 
-  //Motor current dummy
+  //Left motor voltage dummy
   if (flagG > 0)
   {
-    motorCurrent++;
-    if (motorCurrent >= 300)
+    motorVoltageLeft++;
+    if (motorVoltageLeft >= 140)
     {
       flagG = -1;
     }
   }
   else
   {
-    motorCurrent--;
-    if (motorCurrent <= 0)
+    motorVoltageLeft--;
+    if (motorVoltageLeft <= 30)
     {
       flagG = 1;
     }
   }
 
-  //TS power dummy
+  //Right motor voltage dummy
   if (flagH > 0)
   {
-    tsPower = (motorVoltage * motorCurrent)/(1000);
+    motorVoltageRight++;
+    if (motorVoltageRight >= 140)
+    {
+      flagH = -1;
+    }
+  }
+  else
+  {
+    motorVoltageRight--;
+    if (motorVoltageRight <= 30)
+    {
+      flagH = 1;
+    }
+  }
+
+  //Left Motor current dummy
+  if (flagI > 0)
+  {
+    motorCurrentLeft++;
+    if (motorCurrentLeft >= 300)
+    {
+      flagI = -1;
+    }
+  }
+  else
+  {
+    motorCurrentLeft--;
+    if (motorCurrentLeft <= 0)
+    {
+      flagI = 1;
+    }
+  }
+
+  //Right Motor current dummy
+  if (flagJ > 0)
+  {
+    motorCurrentRight++;
+    if (motorCurrentRight >= 300)
+    {
+      flagJ = -1;
+    }
+  }
+  else
+  {
+    motorCurrentRight--;
+    if (motorCurrentRight <= 0)
+    {
+      flagJ = 1;
+    }
+  }
+
+  //Steering input dummy
+  if (flagK > 0)
+  {
+    steering++;
+    if (steering >= 100)
+    {
+      flagK = -1;
+    }
+  }
+  else
+  {
+    steering--;
+    if (steering <= 0)
+    {
+      flagK = 1;
+    }
+  }
+
+  //Throttle input dummy
+  if (flagL > 0)
+  {
+    throttle++;
+    if (throttle >= 100)
+    {
+      flagL = -1;
+    }
+  }
+  else
+  {
+    throttle--;
+    if (throttle <= 0)
+    {
+      flagL = 1;
+    }
   }
 
   //Send dummy CAN bus messages
@@ -183,10 +264,18 @@ void loop()
   delay(200); //200ms delay
   CAN.sendMsgBuf(0x5, 0, 2, (const byte *) &bmsCurrent);
   delay(200); //200ms delay
-  CAN.sendMsgBuf(0x6, 0, 2, (const byte *) &motorVoltage);
+  CAN.sendMsgBuf(0x6, 0, 2, (const byte *) &tsPower);
   delay(200); //200ms delay
-  CAN.sendMsgBuf(0x7, 0, 2, (const byte *) &motorCurrent);
+  CAN.sendMsgBuf(0x7, 0, 2, (const byte *) &motorVoltageLeft);
   delay(200); //200ms delay
-  CAN.sendMsgBuf(0x8, 0, 2, (const byte *) &tsPower);
+  CAN.sendMsgBuf(0x8, 0, 2, (const byte *) &motorVoltageRight);
+  delay(200); //200ms delay
+  CAN.sendMsgBuf(0x9, 0, 2, (const byte *) &motorCurrentLeft);
+  delay(200); //200ms delay
+  CAN.sendMsgBuf(0xA, 0, 2, (const byte *) &motorCurrentRight);
+  delay(200); //200ms delay
+  CAN.sendMsgBuf(0xB, 0, 2, (const byte *) &steering);
+  delay(200); //200ms delay
+  CAN.sendMsgBuf(0xC, 0, 2, (const byte *) &throttle);
   delay(200); //200ms delay
 }
