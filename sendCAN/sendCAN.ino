@@ -1,7 +1,7 @@
 //
 // This Arduino Code, Sends Dummy CAN Bus Messages
 // By: Raimonds Kaminskis
-// Last Updated, 22/03/2020
+// Last Updated, 23/04/2020
 //
 
 #include <SPI.h>          //SPI library is used to talk to the CAN controller
@@ -11,15 +11,21 @@ MCP_CAN CAN(10);          //Set SPI chip select to pin 10
 
 void setup()
 {
+  //To communicate with Serial Monitor
+  Serial.begin(9600);
+  
   //Tries to initialize, if failed --> it will loop here for ever
   START_INIT:
 
+  //Setting CAN baud rate to 100kbps
   if (CAN_OK == CAN.begin(CAN_100KBPS))
   {
-    //Setting CAN baud rate to 100kbps
+    Serial.println("CAN Bus Shield Init Ok!");
   }
   else
   {
+    Serial.println("CAN Bus Shield Init Fail");
+    Serial.println("Init CAN Bus Shield Again");
     goto START_INIT;
   }
 }
@@ -45,15 +51,17 @@ short carSpeed = 0;
 short bmsVoltage = 0;
 short bmsCurrent = 0;
 short tsPower = 0;
-short motorVoltageLeft = 30;
-short motorVoltageRight = 30;
-short motorCurrentLeft = 0;
-short motorCurrentRight = 0;
+short motorVoltageFL = 30;
+short motorVoltageFR = 30;
+short motorCurrentFL = 0;
+short motorCurrentFR = 0;
 short steering = 0;
 short throttle = 0;
 
 void loop()
 { 
+  Serial.println("Entered Coms Loop");
+  
   //Emergency stop dummy
   if (flagA > 0)
   {
@@ -141,23 +149,23 @@ void loop()
   //TS power dummy
   if (flagF > 0)
   {
-    tsPower = ((motorVoltageLeft * motorCurrentLeft)
-    +(motorVoltageRight * motorCurrentRight))/(1000);
+    tsPower = ((motorVoltageFL * motorCurrentFL)
+    +(motorVoltageFR * motorCurrentFR))/(1000);
   }
 
   //Left motor voltage dummy
   if (flagG > 0)
   {
-    motorVoltageLeft++;
-    if (motorVoltageLeft >= 140)
+    motorVoltageFL++;
+    if (motorVoltageFL >= 140)
     {
       flagG = -1;
     }
   }
   else
   {
-    motorVoltageLeft--;
-    if (motorVoltageLeft <= 30)
+    motorVoltageFL--;
+    if (motorVoltageFL <= 30)
     {
       flagG = 1;
     }
@@ -166,16 +174,16 @@ void loop()
   //Right motor voltage dummy
   if (flagH > 0)
   {
-    motorVoltageRight++;
-    if (motorVoltageRight >= 140)
+    motorVoltageFR++;
+    if (motorVoltageFR >= 140)
     {
       flagH = -1;
     }
   }
   else
   {
-    motorVoltageRight--;
-    if (motorVoltageRight <= 30)
+    motorVoltageFR--;
+    if (motorVoltageFR <= 30)
     {
       flagH = 1;
     }
@@ -184,16 +192,16 @@ void loop()
   //Left Motor current dummy
   if (flagI > 0)
   {
-    motorCurrentLeft++;
-    if (motorCurrentLeft >= 300)
+    motorCurrentFL++;
+    if (motorCurrentFL >= 300)
     {
       flagI = -1;
     }
   }
   else
   {
-    motorCurrentLeft--;
-    if (motorCurrentLeft <= 0)
+    motorCurrentFL--;
+    if (motorCurrentFL <= 0)
     {
       flagI = 1;
     }
@@ -202,16 +210,16 @@ void loop()
   //Right Motor current dummy
   if (flagJ > 0)
   {
-    motorCurrentRight++;
-    if (motorCurrentRight >= 300)
+    motorCurrentFR++;
+    if (motorCurrentFR >= 300)
     {
       flagJ = -1;
     }
   }
   else
   {
-    motorCurrentRight--;
-    if (motorCurrentRight <= 0)
+    motorCurrentFR--;
+    if (motorCurrentFR <= 0)
     {
       flagJ = 1;
     }
@@ -266,13 +274,13 @@ void loop()
   delay(200); //200ms delay
   CAN.sendMsgBuf(0x6, 0, 2, (const byte *) &tsPower);
   delay(200); //200ms delay
-  CAN.sendMsgBuf(0x7, 0, 2, (const byte *) &motorVoltageLeft);
+  CAN.sendMsgBuf(0x7, 0, 2, (const byte *) &motorVoltageFL);
   delay(200); //200ms delay
-  CAN.sendMsgBuf(0x8, 0, 2, (const byte *) &motorVoltageRight);
+  CAN.sendMsgBuf(0x8, 0, 2, (const byte *) &motorVoltageFR);
   delay(200); //200ms delay
-  CAN.sendMsgBuf(0x9, 0, 2, (const byte *) &motorCurrentLeft);
+  CAN.sendMsgBuf(0x9, 0, 2, (const byte *) &motorCurrentFL);
   delay(200); //200ms delay
-  CAN.sendMsgBuf(0xA, 0, 2, (const byte *) &motorCurrentRight);
+  CAN.sendMsgBuf(0xA, 0, 2, (const byte *) &motorCurrentFR);
   delay(200); //200ms delay
   CAN.sendMsgBuf(0xB, 0, 2, (const byte *) &steering);
   delay(200); //200ms delay
