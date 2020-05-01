@@ -1,0 +1,1 @@
+Acceleration(m/s^2): x= -0.038 y= 0.412 z= 9.591
